@@ -104,15 +104,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="pvp\HP.cs" />
-    <Compile Include="pvp\StageController_Path.cs" />
-    <Compile Include="UnityExplorer_hp\MyUITool.cs" />
     <Compile Include="UnityExplorer_hp\Harmony_Patch.cs" />
-    <Compile Include="UnityExplorer_hp\MouseDragBehaviour.cs" />
     <Compile Include="UnityExplorer_hp\Patchs.cs" />
-    <Compile Include="UnityExplorer_hp\翻译Json.cs" />
-    <Compile Include="UnityExplorer_hp\翻译JsonList.cs" />
-    <Compile Include="UnityExplorer_hp\翻译支持.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig">

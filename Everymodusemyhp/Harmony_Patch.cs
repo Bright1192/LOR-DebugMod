@@ -4,27 +4,31 @@ using HarmonyLib.Public.Patching;
 using Mod;
 using Opening;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Everymodusemyhp
 {
-    public class BaseUI : MonoBehaviour
+    public class DebugMono : MonoBehaviour
     {
         // Token: 0x06000013 RID: 19 RVA: 0x00003874 File Offset: 0x00001A74
         public void Update()
         {
-            if (Input.GetKeyDown(KeyCode.F12))
+            if (Input.GetKeyDown(KeyCode.F11))
             {
                 Everymodusemyhpstatic.outputDll();
+                Application.OpenURL(Everymodusemyhp.path + "/output");
             }
         }
     }
     public static class Everymodusemyhpstatic
-    {
+    {       
+
         public static void CheckPriorty(string uniqueId, int PriortyCount)
         {
 
@@ -95,7 +99,7 @@ namespace Everymodusemyhp
             saveData1.AddData("orders", saveData12);
             saveData1.AddData("lastActivated", saveData13);
             Singleton<SaveManager>.Instance.SaveData(Singleton<ModContentManager>.Instance.savePath, saveData1);
-            
+
         }
         public static void DoHP()
         {
@@ -104,12 +108,7 @@ namespace Everymodusemyhp
 
                 Harmony harmony = new Harmony("Everymodusemyhp");
                 MethodInfo method = typeof(Everymodusemyhpstatic).GetMethod("StopOpening");
-                harmony.Patch(typeof(GameOpeningController).GetMethod("StopOpening", AccessTools.all), new HarmonyMethod(method), null, null, null, null);
-                method = typeof(Everymodusemyhpstatic).GetMethod("ImNotNeedHPError");
-                harmony.Patch(typeof(EntryScene).GetMethod("CheckModError", AccessTools.all), new HarmonyMethod(method), null, null, null, null);
-                method = typeof(Everymodusemyhpstatic).GetMethod("Finalizer");
-                harmony.Patch(typeof(GameOpeningController).GetMethod("StopOpening", AccessTools.all),  null, null, null, new HarmonyMethod(method), null);
-
+                harmony.Patch(typeof(GameOpeningController).GetMethod("StopOpening", AccessTools.all), new HarmonyMethod(method), null, null, new HarmonyMethod(typeof(Everymodusemyhpstatic).GetMethod("Finalizer")),  null);
             }
             catch (Exception message)
             {
@@ -121,22 +120,20 @@ namespace Everymodusemyhp
             if (__exception != null)
             {
                 Debug.LogError(__exception);
+
+                Application.OpenURL(Application.persistentDataPath + "/Player.log");
+                Application.OpenURL(Everymodusemyhp.path + "/output");
                 Application.Quit();
             }
             return null;
         }
-        public static bool ImNotNeedHPError(EntryScene __instance)
-        {
-            Singleton<ModContentManager>.Instance._logs = Singleton<ModContentManager>.Instance._logs.FindAll((string x) => !x.Contains("The same assembly name already exists"));
 
-            return true;
-        }
         // Token: 0x06000017 RID: 23 RVA: 0x000039B4 File Offset: 0x00001BB4
         public static void LookWhatFuckHarmony_PatchDoing(Type type, string Method)
         {
             ManagedMethodPatcher methodPatcher = (ManagedMethodPatcher)type.GetMethod(Method, AccessTools.all).GetMethodPatcher();
             var Assembly = methodPatcher.hookBody.Method.Module.Assembly;
-            var Replace = new Regex(":{1,}").Replace(methodPatcher.hookBody.Method.Name, ".");
+            var Replace = new Regex("[\\+\\<\\>:]+").Replace(methodPatcher.hookBody.Method.Name, ".");
 
             var dllname = Everymodusemyhp.path + "/output/" + Replace + ".dll";
             Debug.LogWarning(dllname);
@@ -146,7 +143,7 @@ namespace Everymodusemyhp
         {
             ManagedMethodPatcher methodPatcher = (ManagedMethodPatcher)Method.GetMethodPatcher();
             var Assembly = methodPatcher.hookBody.Method.Module.Assembly;
-            var Replace = new Regex(":{1,}").Replace(methodPatcher.hookBody.Method.Name, ".");
+            var Replace = new Regex("[\\+\\<\\>:]+").Replace(methodPatcher.hookBody.Method.Name, ".");
 
             var dllname = Everymodusemyhp.path + "/output/" + Replace + ".dll";
             Debug.LogWarning(dllname);
@@ -162,15 +159,12 @@ namespace Everymodusemyhp
                 onPlayEnd();
             }
             CheckPriorty("UnityExplorer", 0);
-            if (MethodPatchersCount < PatchManager.MethodPatchers.Count)
-            {
-                outputDll();
-            }
+
             return false;
         }
+
         public static void outputDll()
         {
-            MethodPatchersCount = PatchManager.MethodPatchers.Count;
             foreach (var x in PatchManager.MethodPatchers.Values)
             {
                 var methodPatcher = (x as ManagedMethodPatcher);
@@ -178,16 +172,29 @@ namespace Everymodusemyhp
                 {
                     var hookBody = methodPatcher.hookBody;
                     var Assembly = hookBody.Method.Module.Assembly;
-                    var Replace = new Regex(":{1,}").Replace(hookBody.Method.Name, ".");
-
+                    var Replace = new Regex("[\\+\\<\\>:]+").Replace(hookBody.Method.Name, ".");
                     var dllname = Everymodusemyhp.path + "/output/" + Replace + ".dll";
                     Debug.LogWarning(dllname);
                     Assembly.Write(dllname);
                 }
             }
         }
+        public static IEnumerator InternetAccessCheck(Action<bool> callback, int timeOut = 4)
+        {
+            string url = "https://weibo.com/";
+            UnityWebRequest request = new UnityWebRequest(url);
+            request.timeout = timeOut;
+            yield return request.SendWebRequest();
+            if (!request.isDone)
+            {
+                callback(obj: false);
+            }
+            else
+            {
+                callback(obj: true);
+            }
+        }
 
-        public static int MethodPatchersCount;
     }
     // Token: 0x02000004 RID: 4
     public class Everymodusemyhp : ModInitializer
@@ -198,8 +205,8 @@ namespace Everymodusemyhp
             try
             {
                 Everymodusemyhp.path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                var CanvasRoot = new GameObject("Everymodusemyhp");
-                CanvasRoot.AddComponent<BaseUI>();
+                var CanvasRoot = new GameObject("[Debug]Everymodusemyhp");
+                CanvasRoot.AddComponent<DebugMono>();
                 UnityEngine.Object.DontDestroyOnLoad(CanvasRoot);
                 CanvasRoot.hideFlags |= HideFlags.HideAndDontSave;
                 CanvasRoot.layer = 5;
@@ -221,9 +228,7 @@ namespace Everymodusemyhp
                 if (!Directory.Exists(Everymodusemyhp.path + "/output"))
                 {
                     Directory.CreateDirectory(Everymodusemyhp.path + "/output"); ;
-                }
-                DirectoryInfo directoryInfo = new DirectoryInfo(Everymodusemyhp.path + "/output");
-                Everymodusemyhpstatic.MethodPatchersCount = directoryInfo.GetFiles().Length;
+                }               
                 Everymodusemyhpstatic.DoHP();
             }
 
