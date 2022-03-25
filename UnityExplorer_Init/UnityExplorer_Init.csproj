@@ -108,11 +108,13 @@
     <Compile Include="pvp\StageController_Path.cs" />
     <Compile Include="UnityExplorer_hp\MyUITool.cs" />
     <Compile Include="UnityExplorer_hp\Harmony_Patch.cs" />
+    <Compile Include="UnityExplorer_hp\InitGameObject.cs" />
     <Compile Include="UnityExplorer_hp\MouseDragBehaviour.cs" />
     <Compile Include="UnityExplorer_hp\Patchs.cs" />
     <Compile Include="UnityExplorer_hp\翻译Json.cs" />
     <Compile Include="UnityExplorer_hp\翻译JsonList.cs" />
     <Compile Include="UnityExplorer_hp\翻译支持.cs" />
+    <Compile Include="UnityExplorer_hp\MyUITool.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig">

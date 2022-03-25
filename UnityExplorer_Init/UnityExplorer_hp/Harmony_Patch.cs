@@ -1,4 +1,5 @@
 ﻿using BaseMod;
+using DemystifyExceptions;
 using HarmonyLib;
 using HarmonyLib.Internal.Patching;
 using HarmonyLib.Public.Patching;
@@ -38,12 +39,43 @@ namespace UnityExplorer_hp
                 Debug.LogError(message);
             }
         }
+
+
+        static Harmony_Patch()
+        {
+        }
+
+
+        public static void InitUnityExplorer()
+        {
+            if (!Harmony_Patch.ison)
+            {
+                ExplorerStandalone.CreateInstance(null, Harmony_Patch.path + "/UnityExplorer");
+                Harmony_Patch.ison = true;
+            }
+        }
+
         // Token: 0x06000005 RID: 5 RVA: 0x0000233C File Offset: 0x0000053C
         public static bool StopOpening()
         {
             GameOpeningController.Instance.StopOpening();
             ExplorerStandalone.CreateInstance();
             return false;
+        }
+
+        // Token: 0x17000001 RID: 1
+        // (get) Token: 0x06000006 RID: 6 RVA: 0x00002089 File Offset: 0x00000289
+        // (set) Token: 0x06000007 RID: 7 RVA: 0x00002095 File Offset: 0x00000295
+        public static string InitUE
+        {
+            get
+            {
+                return Tools.Load<string>("InitUnityExplorer");
+            }
+            set
+            {
+                value.Save("InitUnityExplorer");
+            }
         }
 
         // Token: 0x06000008 RID: 8 RVA: 0x000023B0 File Offset: 0x000005B0
@@ -93,5 +125,7 @@ namespace UnityExplorer_hp
         // Token: 0x04000001 RID: 1
         public static string path = string.Empty;
 
+        // Token: 0x04000002 RID: 2
+        public static bool ison;
     }
 }

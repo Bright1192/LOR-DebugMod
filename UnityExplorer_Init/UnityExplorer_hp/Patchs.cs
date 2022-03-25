@@ -52,12 +52,12 @@ namespace UnityExplorer_hp
             return null;
         }
 
-		/// <summary>
-		/// 终结器是一种使Harmony将原始方法和所有其他补丁包装在try/catch块中的方法,它可以接收抛出的异常，禁止显示异常或返回不同的异常
-		/// </summary>
-		/// <param name="__exception"></param>
-		/// <returns></returns>
-		public static Exception Finalizer(Exception __exception)
+        /// <summary>
+        /// 终结器是一种使Harmony将原始方法和所有其他补丁包装在try/catch块中的方法,它可以接收抛出的异常，禁止显示异常或返回不同的异常
+        /// </summary>
+        /// <param name="__exception"></param>
+        /// <returns></returns>
+        public static Exception Finalizer(Exception __exception)
         {
 
             return null;
